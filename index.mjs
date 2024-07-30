@@ -4,6 +4,7 @@ import fs from 'fs';
 import readline from 'readline';
 import config from './config.json' with {type: "json"};
 import * as EmailValidator from 'email-validator';
+import { htmlToText } from 'html-to-text';
 import chalk from 'chalk';
 
 // Lista de remetentes com credenciais
@@ -55,11 +56,12 @@ async function sendEmail(transporter, senderEmail, recipient, retryCount = 0) {
         const customSubject = subject.replace(/{name}/g, name);
 
         const mailOptions = {
-            from: `Correios <${senderEmail}>`,
+            from: `Meus Rastreios <${senderEmail}>`,
             to: recipient.email,
             date: new Date().toUTCString(),
             messageId: `${new Date().getMilliseconds()}@${config.domain}`,
             subject: customSubject,
+            text: htmlToText(html, { wordwrap: 130 }),
             html
         };
 

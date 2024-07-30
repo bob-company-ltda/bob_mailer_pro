@@ -5,6 +5,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "email-validator": "^2.0.4",
+    "html-to-text": "^9.0.5",
     "nodemailer": "^6.9.13",
     "p-limit": "^5.0.0"
   },
