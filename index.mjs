@@ -8,14 +8,14 @@ import { htmlToText } from 'html-to-text';
 import chalk from 'chalk';
 
 // Lista de remetentes com credenciais
-const senders = config.senders;
+let senders = config.senders;
 const subject = config.subject;
 const recipients_path = config.recipient_path;
 const template_path = config.template_path;
 
 const parallelEmails = config.parallel_emails; // Número de e-mails enviados em paralelo
 const maxEmailsPerSender = 3000; // Número máximo de e-mails por remetente
-const delayBetweenEmails = config.delay_between_emails;; // Atraso entre os disparos em milissegundos
+const delayBetweenEmails = config.delay_between_emails; // Atraso entre os disparos em milissegundos
 const retryDelay = 30000; // Atraso entre tentativas de reenvio em milissegundos
 const maxRetries = 3; // Número máximo de tentativas de reenvio
 
@@ -47,7 +47,7 @@ async function replaceWithTemplate(recipient) {
     }
 }
 
-async function sendEmail(transporter, senderEmail, recipient, retryCount = 0) {
+async function sendEmail(transporter, sender, recipient, retryCount = 0) {
     try {
         if (!recipient.email) throw new Error('e-mail do destinatário não informado');
         const html = await replaceWithTemplate(recipient);
@@ -56,7 +56,7 @@ async function sendEmail(transporter, senderEmail, recipient, retryCount = 0) {
         const customSubject = subject.replace(/{name}/g, name);
 
         const mailOptions = {
-            from: `Meus Rastreios <${senderEmail}>`,
+            from: `Meus Rastreios <${sender.email}>`,
             to: recipient.email,
             date: new Date().toUTCString(),
             messageId: `${new Date().getMilliseconds()}@${config.domain}`,
@@ -66,12 +66,19 @@ async function sendEmail(transporter, senderEmail, recipient, retryCount = 0) {
         };
 
         const info = await transporter.sendMail(mailOptions);
-        console.log(`E-mail enviado por ${senderEmail} para ${recipient.email}: ${info.response}.`);
+        console.log(`E-mail enviado por ${sender.email} para ${recipient.email}: ${info.response}.`);
     } catch (error) {
-        if (error.message.includes('too many AUTH commands') && retryCount < maxRetries) {
+        if (error.message.includes('hostinger_out_ratelimit')) {
+            console.log(chalk.red(`Remetente ${sender.email} atingiu o limite: ${error.message}. Removendo remetente.`));
+            senders = senders.filter(s => s.email !== sender.email);
+            if (senders.length === 0) {
+                throw new Error('Todos os remetentes falharam. Parando o script.');
+            }
+            return;
+        } else if (retryCount < maxRetries) {
             console.log(chalk.red(`Erro ao enviar e-mail para ${recipient.email}: ${error.message}. Tentando novamente em ${retryDelay / 1000} segundos... (Tentativa ${retryCount + 1} de ${maxRetries})`));
             await sleep(retryDelay);
-            await sendEmail(transporter, senderEmail, recipient, retryCount + 1);
+            await sendEmail(transporter, sender, recipient, retryCount + 1);
         } else {
             throw new Error(`Erro ao enviar e-mail para ${recipient.email}: ${error.message}.`);
         }
@@ -85,7 +92,7 @@ async function sendEmails(sender, recipientList) {
 
     const batchPromises = recipientList.slice(0, maxEmailsPerSender).map((recipient) =>
         limit(async () => {
-            await sendEmail(transporter, sender.email, recipient);
+            await sendEmail(transporter, sender, recipient);
             emailsSent++;
             console.log(chalk.blue(`Remetente ${sender.email} enviou ${emailsSent} e-mails.`));
             console.log(chalk.blue('Pausa de 5 segundos para o próximo envio...'));
@@ -120,7 +127,7 @@ async function readRecipientsFromCSV(filePath) {
         });
 
         readInterface.on('error', (error) => {
-            reject(new Error(`Erro ao ler o arquivo ${filePath}, verifique se o caminho está correto`, error.message));
+            reject(new Error(`Erro ao ler o arquivo ${filePath}, verifique se o caminho está correto: ${error.message}`));
         });
     });
 }
