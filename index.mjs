@@ -41,6 +41,7 @@ async function replaceWithTemplate(recipient) {
         let name = recipient.name.trim();
         name = name.split(' ')[0];
         data = data.toString().replace(/{name}/g, name);
+        data = data.toString().replace(/{domain}/g, config.domain);
         return data;
     } catch (error) {
         throw new Error(`Erro ao criar o template de e-mail para ${recipient.email}: ${error}`);
