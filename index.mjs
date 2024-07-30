@@ -10,7 +10,7 @@ import chalk from 'chalk';
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: 'sk-proj-furiivoLxNCxNnnDnv9AT3BlbkFJs4sGSbG5d6SlXOebV78h',
 });
 
 // Lista de remetentes com credenciais
