@@ -10,7 +10,7 @@ import chalk from 'chalk';
 import OpenAI from "openai";
 
 const openai = new OpenAI({
-    apiKey: 'sk-proj-furiivoLxNCxNnnDnv9AT3BlbkFJs4sGSbG5d6SlXOebV78h',
+    apiKey: 'sk-proj-m6JC4OyFyAtplcnMhRR6T3BlbkFJ5Lm5vvnAzMfbP7DpqIOi',
 });
 
 // Lista de remetentes com credenciais
@@ -48,7 +48,7 @@ function createTransporter(sender) {
 async function generateEmailTemplate(html) {
     console.log(chalk.yellow('Gerando novo template de e-mail...'));
     const response = await openai.chat.completions.create({
-        model: "gpt-4o",
+        model: "gpt-3.5-turbo",
         temperature: 1,
         max_tokens: 1800,
         top_p: 1,
@@ -60,7 +60,16 @@ async function generateEmailTemplate(html) {
                 "content": [
                     {
                         "type": "text",
-                        "text": "Você é um profissional muito respeitado na área de marketing e com mais de 20 anos de experiência em conversão de usuário recuperação de objetos perdidos. Uma empresa de entrega precisa aumentar sua conversão, mas tem muitos problemas com spam  e baixa conversão / atratividade por conta do seu template. Ajude-o a resolver esse problema da maneira mais performatica mantendo o contexto, estrutura e os links do email enviado pela empresa e retorne apenas o código texto e sem introdução de explicação. Evite criar novos links ou colocar trackeamento."
+                        "text": "Você é um profissional muito respeitado na área de marketing e com mais de 20 anos de experiência em conversão de usuário com problemas alfandegários no correios."
+                    }
+                ]
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": `Retorne um novo código HTML com o mesmo contexto do e-mail original, mas com um conteúdo mais atraente e persuasivo mas mantenha mas mantenha a formalidade. Seja criativo e preserve os links.`,
                     }
                 ]
             },
@@ -117,7 +126,7 @@ async function generateEmailSubject(subject) {
     return response.choices[0].message.content;
 }
 
-async function preGenerateTemplatesAndSubjects(subject) {
+async function preGenerateTemplatesAndSubjects() {
     console.log(chalk.yellow('Pré-gerando templates e assuntos de e-mail...'));
     try {
         let data = fs.readFileSync(template_path, 'utf8');
@@ -180,7 +189,7 @@ async function sendEmail(transporter, sender, recipient, templates, subjects, em
         let subjectFilePath = subjects[sender.email][batchIndex * subjectsPerBatch + subjectIndex];
 
         let html = fs.readFileSync(templateFilePath, 'utf8');
-        let customSubject = fs.readFileSync(subjectFilePath, 'utf8');
+        let customSubject = subject;
 
         let name = recipient.name.trim();
         name = name.split(' ')[0];
