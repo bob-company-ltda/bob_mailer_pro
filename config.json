@@ -1,0 +1,14 @@
+{
+	"template_path": "./template.html",
+	"recipient_path": "./output.txt",
+	"subject": "{name}!",
+	"parallel_emails": 10,
+	"delay_between_emails": 1000,
+	"senders": [
+		{
+			"host": "mail.test.online",
+			"email": "noreply@test.online",
+			"password": "test"
+		}
+	]
+}

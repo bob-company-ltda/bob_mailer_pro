@@ -1,0 +1,17 @@
+{
+  "name": "bob-mailer",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "email-validator": "^2.0.4",
+    "nodemailer": "^6.9.13",
+    "p-limit": "^5.0.0"
+  },
+  "scripts": {
+    "build:exe": "nexe ./dist/bob-mailer.js -t win32-x64-6.11.2",
+    "build:bundle": "node esbuild.config.js",
+    "build": "npm run build:bundle && npm run build:exe",
+    "raja": "node --trace-warnings --no-warnings index.mjs"
+  }
+}
