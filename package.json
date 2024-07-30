@@ -7,6 +7,7 @@
     "email-validator": "^2.0.4",
     "html-to-text": "^9.0.5",
     "nodemailer": "^6.9.13",
+    "openai": "^4.53.2",
     "p-limit": "^5.0.0"
   },
   "scripts": {
