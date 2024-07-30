@@ -3,6 +3,7 @@
 	"recipient_path": "./output.txt",
 	"subject": "{name}!",
 	"parallel_emails": 10,
+	"domain": "test.online",
 	"delay_between_emails": 1000,
 	"senders": [
 		{

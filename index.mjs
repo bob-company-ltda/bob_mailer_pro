@@ -39,8 +39,6 @@ async function replaceWithTemplate(recipient) {
         let data = fs.readFileSync(template_path, 'utf8');
         let name = recipient.name.trim();
         name = name.split(' ')[0];
-
-        data = data.toString().replace(/{number}/g, recipient.number.trim());
         data = data.toString().replace(/{name}/g, name);
         return data;
     } catch (error) {
@@ -60,7 +58,7 @@ async function sendEmail(transporter, senderEmail, recipient, retryCount = 0) {
             from: `Correios <${senderEmail}>`,
             to: recipient.email,
             date: new Date().toUTCString(),
-            messageId: `${new Date().getMilliseconds()}@rastreiosdepacote.online  `,
+            messageId: `${new Date().getMilliseconds()}@${config.domain}`,
             subject: customSubject,
             html
         };
@@ -106,9 +104,9 @@ async function readRecipientsFromCSV(filePath) {
 
         readInterface.on('line', (line) => {
             if (!line) reject(new Error('Arquivo de destinatários vazio'));
-            const [email, name, number] = line.split(',');
+            const [email, name] = line.split(',');
             if (EmailValidator.validate(email)) {
-                recipients.push({ email, name, number });
+                recipients.push({ email, name });
             } else {
                 console.log(chalk.red(`E-mail inválido: ${email}`));
             }
